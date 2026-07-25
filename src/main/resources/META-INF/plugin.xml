@@ -1,19 +1,55 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.peterzparker.copytextanywhere</id>
-    <name>copy-text-anywhere</name>
-    <vendor>peterzparker</vendor>
+    <name>Copy Text Anywhere</name>
+    <vendor>PeekCat</vendor>
     <description><![CDATA[
-        <p><b>copy-text-anywhere</b> is a repository that provides a pure template to make it easier to create a new plugin project.</p>
-        <p>The main goal of this template is to speed up the setup phase of plugin development for both new and experienced developers by preconfiguring the project scaffold and CI, linking to the proper documentation pages, and keeping everything organized.</p>
+        <p><b>Copy Text Anywhere</b> adds a "Copy Text" option to all right-click context menus across the IDE.</p>
+        <p>Features:</p>
+        <ul>
+            <li>Adds "Copy Text" to editor context menus - copy selected text or current line</li>
+            <li>Adds "Copy Text" to project view, structure view, and console popups</li>
+            <li>Adds "Copy Text" to diff viewer and VCS Log (git history) context menus</li>
+            <li>Adds "Copy Text" to VCS Log changed files list and file history context menus</li>
+            <li>Adds "Copy Text" to commit dialog context menus</li>
+            <li>Works with text fields, labels, tables, trees, lists, and many more components</li>
+        </ul>
+        <p>Simply right-click anywhere text is displayed and select "Copy Text" to copy it to your clipboard!</p>
+        <hr>
+        <p><b>Copy Text Anywhere（复制文本到任意位置）</b>是一款 IntelliJ IDEA 插件，</p>
+        <p>在 IDE 几乎所有右键菜单中添加「复制文本」选项，支持编辑区、项目视图、控制台、差异查看器、Git 提交对话框、VCS 日志等多种场景。</p>
     ]]></description>
 
-    <depends>com.intellij.modules.platform</depends>
+    <change-notes><![CDATA[
+        <h3>v1.0.0</h3>
+        <ul>
+            <li>全局右键「复制文本」功能，支持编辑器、项目视图、结构视图、控制台等多种场景</li>
+            <li>编辑器选中文本复制，无选中时自动复制当前行内容</li>
+            <li>支持多种 Swing 组件：文本组件、标签、按钮、树、表格、列表等</li>
+            <li>VCS 日志、变更文件列表、文件历史、变更视图等右键菜单集成</li>
+            <li>提交编辑器右键菜单集成</li>
+            <li>国际化支持：中文和英文</li>
+            <li>最低支持 IntelliJ IDEA 2025.2.6.2</li>
+        </ul>
+    ]]></change-notes>
 
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>com.intellij.java.ide</depends>
     <resource-bundle>messages.MyBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.peterzparker.copytextanywhere.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.peterzparker.copytextanywhere.startup.MyProjectActivity" />
-    </extensions>
+    <actions>
+        <action id="CopyTextAction"
+                class="com.github.peterzparker.copytextanywhere.services.CopyTextAction"
+        >
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+            <add-to-group group-id="ConsoleEditorPopupMenu" anchor="first"/>
+            <add-to-group group-id="StructureViewPopupMenu" anchor="first"/>
+            <add-to-group group-id="Vcs.Log.ContextMenu" anchor="first"/>
+            <add-to-group group-id="Vcs.Log.ChangesBrowser.Popup" anchor="first"/>
+            <add-to-group group-id="Vcs.FileHistory.ContextMenu" anchor="first"/>
+            <add-to-group group-id="ChangesViewPopupMenu" anchor="first"/>
+        </action>
+    </actions>
 </idea-plugin>

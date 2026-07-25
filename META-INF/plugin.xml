@@ -1,0 +1,38 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+  <idea-version since-build="252" />
+  <version>1.0.0</version>
+  <id>com.github.peterzparker.copytextanywhere</id>
+  <name>Copy Text Anywhere</name>
+  <vendor>PeekCat</vendor>
+  <description><![CDATA[<p><b>Copy Text Anywhere</b> adds a "Copy Text" option to all right-click context menus across the IDE.</p>
+        <p>Features:</p>
+        <ul>
+            <li>Adds "Copy Text" to editor context menus - copy selected text or current line</li>
+            <li>Adds "Copy Text" to project view, structure view, and console popups</li>
+            <li>Adds "Copy Text" to diff viewer and VCS Log (git history) context menus</li>
+            <li>Adds "Copy Text" to VCS Log changed files list and file history context menus</li>
+            <li>Adds "Copy Text" to commit dialog context menus</li>
+            <li>Works with text fields, labels, tables, trees, lists, and many more components</li>
+        </ul>
+        <p>Simply right-click anywhere text is displayed and select "Copy Text" to copy it to your clipboard!</p>
+        <hr>
+        <p><b>Copy Text Anywhere（复制文本到任意位置）</b>是一款 IntelliJ IDEA 插件，</p>
+        <p>在 IDE 几乎所有右键菜单中添加「复制文本」选项，支持编辑区、项目视图、控制台、差异查看器、Git 提交对话框、VCS 日志等多种场景。</p>]]></description>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+  <depends>com.intellij.java.ide</depends>
+  <resource-bundle>messages.MyBundle</resource-bundle>
+  <actions>
+    <action id="CopyTextAction" class="com.github.peterzparker.copytextanywhere.services.CopyTextAction">
+      <add-to-group group-id="EditorPopupMenu" anchor="first" />
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="first" />
+      <add-to-group group-id="ConsoleEditorPopupMenu" anchor="first" />
+      <add-to-group group-id="StructureViewPopupMenu" anchor="first" />
+      <add-to-group group-id="Vcs.Log.ContextMenu" anchor="first" />
+      <add-to-group group-id="Vcs.Log.ChangesBrowser.Popup" anchor="first" />
+      <add-to-group group-id="Vcs.FileHistory.ContextMenu" anchor="first" />
+      <add-to-group group-id="ChangesViewPopupMenu" anchor="first" />
+    </action>
+  </actions>
+</idea-plugin>
