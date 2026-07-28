@@ -1,5 +1,12 @@
 # Copy Text Anywhere Changelog
 
+## [Unreleased]
+
+- docs(readme): 更新插件市场链接和下载统计
+- build(gradle): 集成 changelog 插件并配置相关设置
+- fix(ci): 修复构建工作流中的发布说明生成命令
+- fix(ci): 修复构建工作流中目录创建问题
+
 ## [1.0.0] - 2026-07-26
 
 ### Added
