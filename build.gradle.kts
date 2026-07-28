@@ -3,6 +3,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 plugins {
     id("java")
     id("org.jetbrains.intellij.platform")
+    id("org.jetbrains.changelog") version "2.2.1"
 }
 
 dependencies {
@@ -15,4 +16,8 @@ dependencies {
         bundledPlugin("com.intellij.java.ide")
         testFramework(TestFrameworkType.Platform)
     }
+}
+
+changelog {
+    path = "CHANGELOG.md"
 }
