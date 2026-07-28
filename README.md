@@ -1,8 +1,8 @@
 # Copy Text Anywhere
 
 ![Build](https://github.com/peterzparker/copy-text-anywhere/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/33136.svg)](https://plugins.jetbrains.com/plugin/33136-copy-text-anywhere)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/33136.svg)](https://plugins.jetbrains.com/plugin/33136-copy-text-anywhere)
 
 **Copy Text Anywhere** 是一个 IntelliJ IDEA 插件，在 IDE 几乎所有右键菜单中添加「复制文本」(Copy Text) 选项，让你可以轻松地从任何组件中复制文字到剪贴板。
 
