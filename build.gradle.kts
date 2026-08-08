@@ -1,5 +1,7 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
+val junitVersion: String = project.property("junitVersion") as String
+
 plugins {
     id("java")
     id("org.jetbrains.intellij.platform")
@@ -7,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
+    testImplementation("junit:junit:$junitVersion")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {

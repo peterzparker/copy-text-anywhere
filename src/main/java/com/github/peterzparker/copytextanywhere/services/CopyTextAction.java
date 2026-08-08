@@ -1,10 +1,11 @@
 package com.github.peterzparker.copytextanywhere.services;
 
 import com.github.peterzparker.copytextanywhere.MyBundle;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.ide.CopyPasteManager;
@@ -14,8 +15,12 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * 全局右键复制 Action - 可出现在所有包含文字的右键菜单中。
@@ -24,6 +29,11 @@ import java.awt.datatransfer.StringSelection;
  * 多种 Swing 组件（编辑器、文本框、标签、树、表格、列表等）中提取文字并复制到剪贴板。
  */
 public class CopyTextAction extends AnAction implements DumbAware {
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
+    }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
@@ -52,7 +62,7 @@ public class CopyTextAction extends AnAction implements DumbAware {
         if (editor != null) return true;
 
         // 2. 上下文组件
-        Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
+        Component component = e.getData(PlatformCoreDataKeys.CONTEXT_COMPONENT);
         if (canExtractFromComponent(component)) return true;
 
         // 3. 焦点拥有者
@@ -86,7 +96,7 @@ public class CopyTextAction extends AnAction implements DumbAware {
         }
 
         // 策略 2: 上下文组件（右键点击的组件）
-        Component component = e.getData(PlatformDataKeys.CONTEXT_COMPONENT);
+        Component component = e.getData(PlatformCoreDataKeys.CONTEXT_COMPONENT);
         if (component != null) {
             String text = extractTextFromComponent(component);
             if (text != null && !text.isEmpty()) return text;
@@ -131,80 +141,89 @@ public class CopyTextAction extends AnAction implements DumbAware {
      */
     @Nullable
     private static String extractTextFromComponent(@Nullable Component component) {
-        if (component == null) return null;
+        return switch (Objects.requireNonNull(component)) {
 
-        // 文本组件（JTextField, JTextArea, JTextPane 等）
-        if (component instanceof JTextComponent tc) {
-            String selected = tc.getSelectedText();
-            if (selected != null && !selected.isEmpty()) return selected;
-            String allText = tc.getText();
-            if (allText != null && !allText.isEmpty()) return allText;
-            return null;
+            // 文本组件（JTextField, JTextArea, JTextPane 等）
+            case JTextComponent tc -> extractFromTextComponent(tc);
+
+            // 标签（JLabel, JBLabel 等 - 常用于提交信息、commit 注释等）
+            case JLabel label -> extractFromLabel(label);
+
+            // 按钮（JButton, JCheckBox 等）
+            case AbstractButton button -> extractFromButton(button);
+
+            // 树组件（项目视图、结构视图等）
+            case JTree tree -> extractFromTree(tree);
+
+            // 表格组件（常用于 VCS Log、搜索结果等）
+            case JTable table -> extractFromTable(table);
+
+            // 列表组件
+            case JList<?> list -> extractFromList(list);
+            default -> null;
+        };
+
+    }
+
+    @Nullable
+    private static String extractFromTextComponent(@NotNull JTextComponent tc) {
+        String selected = tc.getSelectedText();
+        if (selected != null && !selected.isEmpty()) return selected;
+        String allText = tc.getText();
+        if (allText != null && !allText.isEmpty()) return allText;
+        return null;
+    }
+
+    @Nullable
+    private static String extractFromLabel(@NotNull JLabel label) {
+        String text = label.getText();
+        return text != null && !text.isEmpty() ? text : null;
+    }
+
+    @Nullable
+    private static String extractFromButton(@NotNull AbstractButton button) {
+        String text = button.getText();
+        return text != null && !text.isEmpty() ? text : null;
+    }
+
+    @Nullable
+    private static String extractFromTree(@NotNull JTree tree) {
+        TreePath[] paths = tree.getSelectionPaths();
+        if (paths == null || paths.length == 0) return null;
+        StringJoiner joiner = new StringJoiner("\n");
+        for (TreePath path : paths) {
+            Object last = path.getLastPathComponent();
+            joiner.add(last != null ? last.toString() : "");
         }
+        String result = joiner.toString();
+        return result.isEmpty() ? null : result;
+    }
 
-        // 标签（JLabel, JBLabel 等 - 常用于提交信息、commit 注释等）
-        if (component instanceof JLabel label) {
-            String text = label.getText();
-            if (text != null && !text.isEmpty()) return text;
-            return null;
-        }
-
-        // 按钮（JButton, JCheckBox 等）
-        if (component instanceof AbstractButton button) {
-            String text = button.getText();
-            if (text != null && !text.isEmpty()) return text;
-            return null;
-        }
-
-        // 树组件（项目视图、结构视图等）
-        if (component instanceof JTree tree) {
-            if (tree.getSelectionCount() > 0) {
-                StringBuilder sb = new StringBuilder();
-                javax.swing.tree.TreePath[] paths = tree.getSelectionPaths();
-                if (paths != null) {
-                    for (int i = 0; i < paths.length; i++) {
-                        if (i > 0) sb.append("\n");
-                        Object last = paths[i].getLastPathComponent();
-                        sb.append(last != null ? last.toString() : "");
-                    }
-                    String result = sb.toString();
-                    if (!result.isEmpty()) return result;
-                }
-            }
-            return null;
-        }
-
-        // 表格组件（常用于 VCS Log、搜索结果等）
-        if (component instanceof JTable table) {
-            int[] rows = table.getSelectedRows();
-            int[] cols = table.getSelectedColumns();
-            if (rows.length == 0 || cols.length == 0) return null;
-            StringBuilder sb = new StringBuilder();
-            for (int row : rows) {
-                for (int col : cols) {
-                    if (!sb.isEmpty()) sb.append(" ");
-                    Object val = table.getValueAt(row, col);
-                    sb.append(val != null ? val.toString() : "");
-                }
-                sb.append("\n");
-            }
-            return sb.toString().trim();
-        }
-
-        // 列表组件
-        if (component instanceof JList) {
-            JList<?> list = (JList<?>) component;
-            java.util.List<?> values = list.getSelectedValuesList();
-            if (values.isEmpty()) return null;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < values.size(); i++) {
-                if (i > 0) sb.append("\n");
-                Object val = values.get(i);
+    @Nullable
+    private static String extractFromTable(@NotNull JTable table) {
+        int[] rows = table.getSelectedRows();
+        int[] cols = table.getSelectedColumns();
+        if (rows.length == 0 || cols.length == 0) return null;
+        StringBuilder sb = new StringBuilder();
+        for (int row : rows) {
+            for (int col : cols) {
+                Object val = table.getValueAt(row, col);
+                if (!sb.isEmpty()) sb.append(" ");
                 sb.append(val != null ? val.toString() : "");
             }
-            return sb.toString();
+            sb.append("\n");
         }
+        return sb.toString().trim();
+    }
 
-        return null;
+    @Nullable
+    private static String extractFromList(@NotNull JList<?> list) {
+        List<?> values = list.getSelectedValuesList();
+        if (values.isEmpty()) return null;
+        StringJoiner joiner = new StringJoiner("\n");
+        for (Object value : values) {
+            joiner.add(value != null ? value.toString() : "");
+        }
+        return joiner.toString();
     }
 }
