@@ -5,7 +5,7 @@ val junitVersion: String = project.property("junitVersion") as String
 plugins {
     id("java")
     id("org.jetbrains.intellij.platform")
-    id("org.jetbrains.changelog") version "2.2.1"
+    id("org.jetbrains.changelog") version "2.5.0"
 }
 
 dependencies {
